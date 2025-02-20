@@ -5,12 +5,17 @@ const Navbar = () => {
   let links = (
     <>
       <li>
+        <Link className="text-xl text-white" to="/">
+          Home
+        </Link>
+      </li>
+      <li>
         <Link className="text-xl text-white" to="/login">
           Login
         </Link>
       </li>
       <li>
-        <Link className="text-xl text-white" to="/login">
+        <Link className="text-xl text-white" to="/register">
           Register
         </Link>
       </li>
