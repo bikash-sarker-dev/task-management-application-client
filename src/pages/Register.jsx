@@ -1,9 +1,14 @@
 import React from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import useAuth from "../hooks/useAuth";
+import useAxiosApi from "../hooks/useAxiosApi";
 
 const Register = () => {
   const { createAccount } = useAuth();
+  const axiosApi = useAxiosApi();
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -15,9 +20,25 @@ const Register = () => {
   const onSubmit = (data) => {
     console.log(data);
     createAccount(data.email, data.password)
-      .then((userCredential) => {
+      .then(async (userCredential) => {
         const user = userCredential.user;
-        console.log(user);
+        const information = {
+          name: data.username,
+          email: data.email,
+        };
+        let res = await axiosApi.post("/users", information);
+        console.log(res.data);
+        if (res.data.insertedId) {
+          Swal.fire({
+            position: "top-end",
+            icon: "success",
+            title: "Your work has been saved",
+            showConfirmButton: false,
+            timer: 1500,
+          });
+          navigate("/");
+        }
+
         reset();
       })
       .catch((error) => {

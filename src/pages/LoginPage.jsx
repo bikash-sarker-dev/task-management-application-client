@@ -1,9 +1,12 @@
 import React from "react";
 import { useForm } from "react-hook-form";
+import { useNavigate } from "react-router-dom";
+import Swal from "sweetalert2";
 import useAuth from "../hooks/useAuth";
 
 const LoginPage = () => {
   const { loginAccount } = useAuth();
+  const navigate = useNavigate();
   const {
     register,
     handleSubmit,
@@ -17,6 +20,14 @@ const LoginPage = () => {
       .then((userCredential) => {
         const user = userCredential.user;
         console.log(user);
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Your Task Application enjoy",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        navigate("/");
         reset();
       })
       .catch((error) => {
