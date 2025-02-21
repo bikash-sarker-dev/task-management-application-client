@@ -1,24 +1,44 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import useAuth from "../../hooks/useAuth";
 
 const Navbar = () => {
+  const { user, accountLogout } = useAuth();
+
+  const handleLogOut = () => {
+    accountLogout().then(() => {
+      console.log("logOut ");
+    });
+  };
   let links = (
     <>
-      <li>
-        <Link className="text-xl text-white" to="/">
-          Home
-        </Link>
-      </li>
-      <li>
-        <Link className="text-xl text-white" to="/login">
-          Login
-        </Link>
-      </li>
-      <li>
-        <Link className="text-xl text-white" to="/register">
-          Register
-        </Link>
-      </li>
+      {user && user?.email ? (
+        <>
+          <li>
+            <Link className="text-xl text-white" to="/">
+              Home
+            </Link>
+          </li>
+          <li>
+            <button onClick={handleLogOut} className="text-xl text-white">
+              LogOut
+            </button>
+          </li>
+        </>
+      ) : (
+        <>
+          <li>
+            <Link className="text-xl text-white" to="/login">
+              Login
+            </Link>
+          </li>
+          <li>
+            <Link className="text-xl text-white" to="/register">
+              Register
+            </Link>
+          </li>
+        </>
+      )}
     </>
   );
   return (
