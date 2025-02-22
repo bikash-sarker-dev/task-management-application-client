@@ -1,21 +1,37 @@
 import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
-import { useState } from "react";
-
-const initialData = {
-  todo: ["Task 1", "Task 2"],
-  inProgress: ["Task 3"],
-  done: ["Task 4"],
-};
+import { useEffect, useState } from "react";
+import { IoMdClose } from "react-icons/io";
+import { TiPencil } from "react-icons/ti";
+import useAxiosApi from "./../../../hooks/useAxiosApi";
 
 export default function KanbanBoard() {
-  const [columns, setColumns] = useState(initialData);
+  const axiosApi = useAxiosApi();
+  const [todoValue, setTodoValue] = useState([]);
+  const [progressValue, setProgressValue] = useState([]);
+  const [doneValue, setDoneValue] = useState([]);
+  const [columns, setColumns] = useState({
+    todo: [],
+    progress: [],
+    done: [],
+  });
+
+  useEffect(() => {
+    axiosApi.get("/tasks").then((response) => {
+      const tasks = response.data.reduce(
+        (acc, task) => {
+          acc[task.category] = [...(acc[task.category] || []), task];
+          return acc;
+        },
+        { todo: [], progress: [], done: [] }
+      );
+
+      setColumns(tasks);
+    });
+  }, []);
 
   const onDragEnd = (result) => {
     if (!result.destination) return;
-
     const { source, destination } = result;
-
-    // If the task is moved to the same place
     if (
       source.droppableId === destination.droppableId &&
       source.index === destination.index
@@ -24,22 +40,18 @@ export default function KanbanBoard() {
     }
 
     setColumns((prevColumns) => {
-      // Create a new copy of the columns state
       const newColumns = { ...prevColumns };
-
-      // Get the source and destination columns
       const sourceColumn = newColumns[source.droppableId];
       const destinationColumn = newColumns[destination.droppableId];
-
-      // Remove the task from the source column
       const [movedTask] = sourceColumn.splice(source.index, 1);
-
-      // Add the task to the destination column
       destinationColumn.splice(destination.index, 0, movedTask);
 
-      // Return the updated state without copying the entire column object
       return newColumns;
     });
+  };
+
+  const handleDelete = (id) => {
+    console.log(id);
   };
 
   return (
@@ -68,11 +80,25 @@ export default function KanbanBoard() {
                         ref={provided.innerRef}
                         {...provided.draggableProps}
                         {...provided.dragHandleProps}
-                        className={`${
-                          task && "p-4"
-                        } bg-white  shadow-md rounded-md cursor-grab my-3`}
+                        className={`  shadow-md rounded-md cursor-grab`}
                       >
-                        {task}
+                        <div className="card bg-base-100  shadow-xl my-3">
+                          <div className="card-actions justify-end pt-5 pr-5">
+                            <button className="text-xl">
+                              <TiPencil />
+                            </button>
+                            <button
+                              onClick={() => handleDelete(task._id)}
+                              className="text-xl"
+                            >
+                              <IoMdClose />
+                            </button>
+                          </div>
+                          <div className="card-body pt-2">
+                            <h2 className="card-title">{task?.title}</h2>
+                            <p>{task?.description}</p>
+                          </div>
+                        </div>
                       </div>
                     )}
                   </Draggable>

@@ -53,9 +53,9 @@ const TaskForm = () => {
                 {...register("category", { required: true })}
               >
                 <option disabled>Choose your category</option>
-                <option className="to-do">To-Do</option>
-                <option className="progress">In Progress</option>
-                <option className="done">Done</option>
+                <option value="todo">To-Do</option>
+                <option value="progress">In Progress</option>
+                <option value="done">Done</option>
               </select>
             </div>
           </div>
