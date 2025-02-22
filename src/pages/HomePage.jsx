@@ -1,12 +1,15 @@
 import React from "react";
-import TaskShow from "../components/home/task/TaskShow";
+import KanbanBoard from "../components/home/task/TaskDrop";
 import TaskForm from "../components/home/taskForm/TaskForm";
 
 const HomePage = () => {
   return (
     <div>
       <TaskForm />
-      <TaskShow />
+      {/* <TaskShow /> */}
+      {/* <NewShowTask /> */}
+      {/* <LatestDrop /> */}
+      <KanbanBoard />
     </div>
   );
 };
