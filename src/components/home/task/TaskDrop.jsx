@@ -12,11 +12,10 @@ export default function KanbanBoard() {
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors },
   } = useForm();
-  const [todoValue, setTodoValue] = useState([]);
-  const [progressValue, setProgressValue] = useState([]);
-  const [doneValue, setDoneValue] = useState([]);
+  const [upTask, setUpTask] = useState({});
   const [run, setRun] = useState(false);
   const [columns, setColumns] = useState({
     todo: [],
@@ -87,16 +86,33 @@ export default function KanbanBoard() {
   const onSubmit = async (data) => {
     const taskInfo = {
       ...data,
-      date: new Date(),
     };
 
     try {
-      let res = await axiosApi.post("/tasks", taskInfo);
+      let res = await axiosApi.patch(`/tasks/${upTask._id}`, taskInfo);
       console.log(res.data);
+      if (res.data.modifiedCount > 0) {
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Your work has been saved",
+          showConfirmButton: false,
+          timer: 1500,
+        });
+      }
     } catch (error) {
       console.log(error);
     }
+    reset();
+    document.getElementById("my_modal_1").close();
     console.log(taskInfo);
+  };
+
+  const handleUpdateTask = async (id) => {
+    document.getElementById("my_modal_1").showModal();
+    console.log(id);
+    const res = await axiosApi.get(`/tasks/${id}`);
+    setUpTask(res.data);
   };
 
   return (
@@ -128,30 +144,28 @@ export default function KanbanBoard() {
                           {...provided.dragHandleProps}
                           className={`  shadow-md rounded-md cursor-grab`}
                         >
-                          <div className="card bg-base-100  shadow-xl my-3">
-                            <div className="card-actions justify-end pt-5 pr-5">
-                              <button
-                                onClick={() =>
-                                  document
-                                    .getElementById("my_modal_1")
-                                    .showModal()
-                                }
-                                className="text-xl"
-                              >
-                                <TiPencil />
-                              </button>
-                              <button
-                                onClick={() => handleDelete(task._id)}
-                                className="text-xl"
-                              >
-                                <IoMdClose />
-                              </button>
+                          {task && (
+                            <div className="card bg-base-100  shadow-xl my-3">
+                              <div className="card-actions justify-end pt-5 pr-5">
+                                <button
+                                  onClick={() => handleUpdateTask(task._id)}
+                                  className="text-xl"
+                                >
+                                  <TiPencil />
+                                </button>
+                                <button
+                                  onClick={() => handleDelete(task._id)}
+                                  className="text-xl"
+                                >
+                                  <IoMdClose />
+                                </button>
+                              </div>
+                              <div className="card-body pt-2">
+                                <h2 className="card-title">{task?.title}</h2>
+                                <p>{task?.description}</p>
+                              </div>
                             </div>
-                            <div className="card-body pt-2">
-                              <h2 className="card-title">{task?.title}</h2>
-                              <p>{task?.description}</p>
-                            </div>
-                          </div>
+                          )}
                         </div>
                       )}
                     </Draggable>
@@ -187,6 +201,7 @@ export default function KanbanBoard() {
                   type="text"
                   placeholder="title"
                   className="input input-bordered"
+                  defaultValue={upTask?.title}
                   required
                 />
                 {errors.title && (
@@ -200,11 +215,17 @@ export default function KanbanBoard() {
                   <span className="label-text">Category</span>
                 </label>
                 <select
-                  defaultValue="Choose your category"
                   className="select select-bordered w-full "
                   {...register("category", { required: true })}
+                  defaultValue={
+                    upTask?.category ? upTask?.category : "Choose your category"
+                  }
                 >
-                  <option disabled>Choose your category</option>
+                  <option disabled>
+                    {upTask?.category
+                      ? upTask?.category
+                      : "Choose your category"}
+                  </option>
                   <option value="todo">To-Do</option>
                   <option value="progress">In Progress</option>
                   <option value="done">Done</option>
@@ -220,6 +241,7 @@ export default function KanbanBoard() {
                   required: true,
                   maxLength: 200,
                 })}
+                defaultValue={upTask?.description}
                 placeholder="description"
                 className="textarea textarea-bordered textarea-md w-full "
               ></textarea>
