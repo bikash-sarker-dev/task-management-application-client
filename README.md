@@ -9,6 +9,7 @@ This is a task management system. From here we can add a tax. Then we drag and d
 - We can add, delete, and update a task from here.
 - We can do our adding and deleting and any other work in real time and the output will also be given to me in real time.
 - If we cannot use the app without logging in, we can only do one thing after completing the authentication process.
+- Cards can be dragged and dropped at will into any of the three fields.
 
 ### The Client Side Package Use in application :
 
