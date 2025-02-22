@@ -2,6 +2,7 @@ import { DragDropContext, Draggable, Droppable } from "@hello-pangea/dnd";
 import { useEffect, useState } from "react";
 import { IoMdClose } from "react-icons/io";
 import { TiPencil } from "react-icons/ti";
+import Swal from "sweetalert2";
 import useAxiosApi from "./../../../hooks/useAxiosApi";
 
 export default function KanbanBoard() {
@@ -9,6 +10,7 @@ export default function KanbanBoard() {
   const [todoValue, setTodoValue] = useState([]);
   const [progressValue, setProgressValue] = useState([]);
   const [doneValue, setDoneValue] = useState([]);
+  const [run, setRun] = useState(false);
   const [columns, setColumns] = useState({
     todo: [],
     progress: [],
@@ -27,7 +29,7 @@ export default function KanbanBoard() {
 
       setColumns(tasks);
     });
-  }, []);
+  }, [run]);
 
   const onDragEnd = (result) => {
     if (!result.destination) return;
@@ -50,8 +52,29 @@ export default function KanbanBoard() {
     });
   };
 
-  const handleDelete = (id) => {
-    console.log(id);
+  const handleDelete = async (id) => {
+    Swal.fire({
+      title: "Are you sure?",
+      text: "You won't be able to revert this!",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#3085d6",
+      cancelButtonColor: "#d33",
+      confirmButtonText: "Yes, delete it!",
+    }).then(async (result) => {
+      if (result.isConfirmed) {
+        const res = await axiosApi.delete(`/tasks/${id}`);
+        console.log(res.data);
+        if (res.data.deletedCount > 0) {
+          setRun(!run);
+          Swal.fire({
+            title: "Deleted!",
+            text: "Your file has been deleted.",
+            icon: "success",
+          });
+        }
+      }
+    });
   };
 
   return (
